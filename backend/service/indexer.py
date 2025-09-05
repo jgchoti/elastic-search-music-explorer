@@ -1,11 +1,12 @@
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 import pandas as pd
-
-
+import os
 class Indexer():
-    def __init__(self, index_name="spotify_tracks", es_host="http://localhost:9200"):
+    def __init__(self, index_name="spotify_tracks", es_host=None):
         self.index_name = index_name
+        if es_host is None:
+            es_host = os.getenv('ELASTICSEARCH_HOST', 'http://localhost:9200')
         self.client = Elasticsearch(es_host)
         self.df = None
     

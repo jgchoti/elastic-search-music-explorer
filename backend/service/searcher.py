@@ -1,9 +1,14 @@
 from elasticsearch import Elasticsearch
 from typing import List, Union, Dict, Any
-from service.model import SearchResult, ArtistAlbums, TopArtists, GenreComparison, Track
-
+from .model import SearchResult, ArtistAlbums, TopArtists, GenreComparison, Track
+import os
 class SpotifySearcher:
-    def __init__(self, index_name="spotify_tracks", es_host="http://localhost:9200"):
+    
+    def __init__(self, index_name="spotify_tracks", es_host=None):
+        if es_host is None:
+            es_host = os.getenv("ELASTICSEARCH_HOST", "http://elasticsearch:9200")
+        if not es_host.startswith("http://") and not es_host.startswith("https://"):
+            es_host = f"http://{es_host}"
         self.client = Elasticsearch(es_host)
         self.index_name = index_name
     def search_artist_albums(self, artist_name: str, size: int = 50) -> Dict[str, Any]:
@@ -273,7 +278,7 @@ class SpotifySearcher:
                     "avg_valence": {"avg": {"field": "valence"}},
                     "avg_popularity": {"avg": {"field": "popularity"}},
                     "avg_tempo": {"avg": {"field": "tempo"}},
-                    "track_count": {"value_count": {"field": "track_id"}}
+                    "track_count": {"value_count": {"field": "track_id.keyword"}} 
                 }
             }
         

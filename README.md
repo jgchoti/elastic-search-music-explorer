@@ -1,34 +1,80 @@
-### 5. 🎵 Spotify Music Explorer
+# 🎵 Spotify Music Explorer
 
-**Dataset**: [Spotify Tracks dataset on Kaggle](https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset)
+A powerful music analytics platform using Elasticsearch, FastAPI, and Streamlit for exploring Spotify track data with advanced search and AI-powered recommendations.
 
-**Must-have**
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8.x-yellow.svg)](https://elastic.co)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green.svg)](https://fastapi.tiangolo.com)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Latest-red.svg)](https://streamlit.io)
 
-- Index tracks with title, artist, album, genre, year, and audio features
-- Search by song title or artist
-- Filter by year, genre, or album
+## ✨ Features
 
-**Nice-to-have**
+- 🔍 **Smart Search** - Find tracks by title, artist, or album
+- 📊 **Genre Analytics** - Compare audio features across genres
+- 🎯 **AI Recommendations** - Vector-based similarity search
+- 👥 **Artist Rankings** - Top performers by genre and popularity
+- 📈 **Interactive Dashboards** - Real-time visualizations with Plotly
 
-- Aggregations: average danceability/energy per genre, most common genres
-- “Find similar songs” with `more_like_this`
-- Vector search for music embeddings (e.g., based on audio features)
+## 🚀 Quick Start
 
-## ✅ Deliverables
+```bash
+# Clone repository
+git clone https://github.com/jgchoti/elastic-search-music-explorer.git
+cd elastic-search-music-explorer
 
-1 repository and your code and queries should follow **clean coding practices**:
+# Start Elasticsearch
+docker run -d -p 9200:9200 -e "discovery.type=single-node" \
+  docker.elastic.co/elasticsearch/elasticsearch:8.11.0
 
-- Use meaningful variable names
-- Add docstrings to functions
-- Organize queries in reusable functions
-- Avoid hardcoding values unnecessarily
+# Install dependencies
+pip install -r requirements.txt
 
-### 🌟 Nice-to-Have
+python backend/main.py
 
-If you finish early or want to explore advanced features:
+# Start services
+uvicorn backend.main:app --reload &
+streamlit run app.py
+```
 
-- Implement **autocomplete** for search input
-- Use the **“did you mean”** feature for misspelled queries
-- Add **advanced aggregations** (e.g., histograms, percentiles)
-- Visualize results in [Kibana](https://www.tutorialspoint.com/kibana/index.htm) or a custom web UI
-- Try **vector search** if your dataset supports embeddings for similarity queries
+## 🎯 Demo
+
+**Dashboard**: http://localhost:8501  
+**API Docs**: http://localhost:8000/docs
+
+![Dashboard Preview](demo-screenshot.png)
+
+## 🏗️ Architecture
+
+```
+Backend (FastAPI) ↔ Elasticsearch ↔ Frontend (Streamlit)
+     ↓                    ↓              ↓
+API Endpoints         Search Index    Visualizations
+Vector Search         Audio Features  Interactive Charts
+```
+
+## 📊 Dataset
+
+Uses [Spotify Tracks Dataset](https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset) with:
+
+- 114,000+ tracks
+- Audio features (danceability, energy, valence, tempo)
+- Metadata (artist, album, genre, popularity)
+
+## 🔧 Key Technologies
+
+- **Search**: Elasticsearch with vector similarity
+- **Backend**: FastAPI with async support
+- **Frontend**: Streamlit + Plotly visualizations
+
+## 📱 Main Features
+
+| Feature             | Description                                    |
+| ------------------- | ---------------------------------------------- |
+| **Search & Filter** | Advanced text search with genre/year filtering |
+| **Genre Analytics** | Compare audio features across music genres     |
+| **Artist Rankings** | Top artists by popularity and track count      |
+| **Real-time Stats** | Live dashboard with collection insights        |
+
+---
+
+⭐ **Star this repo** if you found it helpful!

@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Query, HTTPException
 from typing import List, Optional
-from service.indexer import Indexer
-from service.dowloader import Downloader
-from service.searcher import SpotifySearcher
+from backend.service.indexer import Indexer
+from backend.service.downloader import Downloader
+from backend.service.searcher import SpotifySearcher
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 
 app = FastAPI(
@@ -24,19 +25,43 @@ app.add_middleware(
 indexer = Indexer()
 searcher = SpotifySearcher()
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize index on startup"""
-    try:
-        if not indexer.check_index():
-            downloader = Downloader()
-            input_file = downloader.download_spotify_data()
-            indexer.load_data(input_file)
-            indexer.index_data()
-        else:
-            print("Index already exists, skipping initialization")
-    except Exception as e:
-        print(f"Error during startup: {e}")
+# @app.on_event("startup")
+# async def startup_event():
+#     """Initialize index on startup"""
+#     try:
+#         import asyncio
+#         max_retries = 3  # Reduced retries
+#         retry_delay = 2  # Reduced delay
+        
+#         for attempt in range(max_retries):
+#             try:
+#                 print(f"Attempt {attempt + 1}/{max_retries}: Checking Elasticsearch connection...")
+                
+#                 # Test basic connection with timeout
+#                 loop = asyncio.get_event_loop()
+#                 await loop.run_in_executor(None, indexer.client.info)
+#                 print("Elasticsearch connection successful")
+                
+#                 # Quick index check only - NO data loading on startup
+#                 index_exists = await loop.run_in_executor(None, indexer.check_index)
+#                 if not index_exists:
+#                     print("Index not found - will be created on first data request")
+#                 else:
+#                     print("Index exists and ready")
+                
+#                 break  
+                
+#             except Exception as e:
+#                 print(f"Attempt {attempt + 1} failed: {e}")
+#                 if attempt < max_retries - 1:
+#                     print(f"Retrying in {retry_delay} seconds...")
+#                     await asyncio.sleep(retry_delay)  # Use async sleep
+#                 else:
+#                     print("Elasticsearch not ready - API will start anyway")
+        
+#     except Exception as e:
+#         print(f"Startup check failed: {e}")
+#         print("API starting without Elasticsearch verification")
 
 
 @app.get("/albums/{artist_name}", summary="Get artist albums")
@@ -155,7 +180,13 @@ async def health_check():
             "index": searcher.index_name
         }
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
+        return {
+            "status": "degraded",
+            "api": "healthy",
+            "elasticsearch": "unavailable",
+            "error": str(e),
+            "message": "API is running but Elasticsearch is not accessible"
+        }
 
 
 @app.get("/", summary="API info")
@@ -179,8 +210,14 @@ async def root():
 # Error handlers
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
-    return {"error": "Resource not found", "detail": str(exc)}
+    return JSONResponse(
+        status_code=404,
+        content={"error": "Resource not found", "detail": str(exc)},
+    )
 
 @app.exception_handler(500)  
 async def internal_error_handler(request, exc):
-    return {"error": "Internal server error", "detail": str(exc)}
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "detail": str(exc)},
+    )

@@ -6,6 +6,7 @@ from plotly.subplots import make_subplots
 import requests
 from typing import List, Dict, Any
 import numpy as np
+import os
 
 st.set_page_config(
     page_title="Spotify Music Analytics",
@@ -14,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-API_BASE = "http://localhost:8000"
+API_BASE = os.getenv('API_BASE', "http://localhost:8000")
 
 
 st.markdown("""
