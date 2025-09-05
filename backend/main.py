@@ -175,19 +175,24 @@ async def health_check():
             "status": "healthy",
             "elasticsearch": {
                 "cluster_name": info["cluster_name"],
-                "version": info["version"]["number"]
+                "version": info["version"]["number"],
+                "available": True
             },
             "index": searcher.index_name
         }
     except Exception as e:
         return {
-            "status": "degraded",
+            "status": "degraded", 
             "api": "healthy",
-            "elasticsearch": "unavailable",
+            "elasticsearch": {
+                "cluster_name": "unavailable",
+                "version": "unavailable", 
+                "available": False
+            },
+            "index": "unavailable",
             "error": str(e),
             "message": "API is running but Elasticsearch is not accessible"
         }
-
 
 @app.get("/", summary="API info")
 async def root():

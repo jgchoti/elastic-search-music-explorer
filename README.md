@@ -18,30 +18,38 @@ A powerful music analytics platform using Elasticsearch, FastAPI, and Streamlit 
 ## 🚀 Quick Start
 
 ```bash
+
 # Clone repository
 git clone https://github.com/jgchoti/elastic-search-music-explorer.git
 cd elastic-search-music-explorer
 
-# Start Elasticsearch
-docker run -d -p 9200:9200 -e "discovery.type=single-node" \
-  docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+# Start all services with Docker Compose (Elasticsearch + Kibana + App)
+docker-compose up --build -d
 
-# Install dependencies
-pip install -r requirements.txt
+# Wait for services to initialize (about 2-3 minutes)
+# Check if services are ready
+docker-compose ps
 
-python backend/main.py
+# Verify Elasticsearch is running
+curl http://localhost:9200/_cluster/health
 
-# Start services
-uvicorn backend.main:app --reload &
-streamlit run app.py
+# Verify Kibana is accessible
+curl http://localhost:5601/api/status
+
+# Index your data (run once after services are up)
+docker-compose exec spotify-app python backend/elasticsearch_client.py
+
 ```
 
 ## 🎯 Demo
 
-**Dashboard**: http://localhost:8501  
-**API Docs**: http://localhost:8000/docs
+- Streamlit Dashboard: http://localhost:8501
+- FastAPI Documentation: http://localhost:8000/docs
+- Kibana Analytics: http://localhost:5601
+- Elasticsearch: http://localhost:9200
 
-![Dashboard Preview](demo-screenshot.png)
+![Dashboard Preview](demo.png)
+![Dashboard Preview](demo-2.png)
 
 ## 🏗️ Architecture
 
@@ -68,13 +76,10 @@ Uses [Spotify Tracks Dataset](https://www.kaggle.com/datasets/maharshipandya/-sp
 
 ## 📱 Main Features
 
-| Feature             | Description                                    |
-| ------------------- | ---------------------------------------------- |
-| **Search & Filter** | Advanced text search with genre/year filtering |
-| **Genre Analytics** | Compare audio features across music genres     |
-| **Artist Rankings** | Top artists by popularity and track count      |
-| **Real-time Stats** | Live dashboard with collection insights        |
-
----
-
-⭐ **Star this repo** if you found it helpful!
+| Feature                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| **Search & Filter**    | Advanced text search with genre/year filtering |
+| **Genre Analytics**    | Compare audio features across music genres     |
+| **Artist Rankings**    | Top artists by popularity and track count      |
+| **Real-time Stats**    | Live dashboard with collection insights        |
+| **AI Recommendations** | Vector-based similar track suggestions         |
